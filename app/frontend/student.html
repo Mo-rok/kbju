@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Student Panel</title>
+  <style>
+    :root {
+      --primary-color: #27ae60;
+      --accent-color: #2ecc71;
+      --background: #ecf0f1;
+      --text-color: #2c3e50;
+      --error-color: #e74c3c;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body {
+      background: var(--background);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #eee;
+    }
+
+    .logout-btn {
+      background: #e74c3c;
+      padding: 0.6rem 1.2rem;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.2s;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-1px);
+      background: #c0392b;
+    }
+
+    .logout-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: white;
+    }
+
+    h1 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-color);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(46,204,113,0.1);
+    }
+
+    #saveParamsBtn, #calcKbjuBtn {
+      width: 100%;
+      background: var(--primary-color);
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    #saveParamsBtn:hover, #calcKbjuBtn:hover {
+      background: #229954;
+    }
+
+    hr {
+      margin: 2rem 0;
+      border: 1px solid #eee;
+    }
+
+    #output {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+    }
+
+    #output p {
+      margin: 0.5rem 0;
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+
+    #output p:first-child {
+      margin-top: 0;
+    }
+
+    #output p:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem;
+        border-radius: 8px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      input {
+        padding: 10px;
+      }
+
+      #saveParamsBtn, #calcKbjuBtn {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Личный кабинет ученика</h1>
+      <button class="logout-btn" id="logoutBtn">
+        <svg viewBox="0 0 24 24">
+          <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 0 1 2 2v2h-2V4H5v16h9v-2h2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9z"/>
+        </svg>
+        Выход
+      </button>
+    </div>
+
+    <div class="form-group">
+      <label for="height">Рост (см)</label>
+      <input type="number" id="height" placeholder="Ваш рост">
+    </div>
+
+    <div class="form-group">
+      <label for="weight">Вес (кг)</label>
+      <input type="number" id="weight" placeholder="Ваш вес">
+    </div>
+
+    <div class="form-group">
+      <label for="age">Возраст</label>
+      <input type="number" id="age" placeholder="Ваш возраст">
+    </div>
+
+    <button id="saveParamsBtn">Сохранить параметры</button>
+
+    <hr>
+
+    <button id="calcKbjuBtn">Рассчитать КБЖУ</button>
+
+    <div id="output"></div>
+  </div>
+  <script>
+    const API_URL = 'http://127.0.0.1:8000';
+
+    const user_id = localStorage.getItem("user_id");
+    const role = localStorage.getItem("role");
+    if (role !== "student") {
+      alert("Нет доступа (не студент).");
+      window.location.href = "index.html";
+    }
+
+    // Обработчик выхода
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    document.getElementById("saveParamsBtn").addEventListener("click", async () => {
+      const height = parseFloat(document.getElementById("height").value);
+      const weight = parseFloat(document.getElementById("weight").value);
+      const age = parseInt(document.getElementById("age").value);
+
+      try {
+        const resp = await fetch(`${API_URL}/student/set_params`, {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: parseInt(user_id),
+            height, weight, age
+          })
+        });
+        if (!resp.ok) {
+          const errData = await resp.json();
+          alert("Ошибка: " + errData.detail);
+          return;
+        }
+        const data = await resp.json();
+        alert(data.message);
+      } catch (err) {
+        console.error(err);
+        alert("Ошибка при сохранении параметров");
+      }
+    });
+
+    document.getElementById("calcKbjuBtn").addEventListener("click", async () => {
+      const url = `${API_URL}/student/calculate_kbju?user_id=${user_id}`;
+      try {
+        const resp = await fetch(url, { method: 'GET' });
+        if (!resp.ok) {
+          const errData = await resp.json();
+          alert("Ошибка: " + (errData.detail || "Unknown error"));
+          return;
+        }
+        const data = await resp.json();
+        document.getElementById("output").innerHTML = `
+          <p>ИМТ: ${data.bmi}</p>
+          <p>Суточная калорийность: ${data.daily_kcal}</p>
+          <p>Белки: ${data.daily_proteins}g</p>
+          <p>Жиры: ${data.daily_fats}g</p>
+          <p>Углеводы: ${data.daily_carbs}g</p>
+        `;
+      } catch (err) {
+        console.error(err);
+        alert("Ошибка при расчёте КБЖУ");
+      }
+    });
+  </script>
+</body>
+</html>

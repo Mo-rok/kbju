@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Панель питания</title>
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --accent: #3498db;
+      --background: #f8f9fa;
+      --text: #34495e;
+      --success: #27ae60;
+      --error: #e74c3c;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--background);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #eee;
+    }
+
+    .logout-btn {
+      background: var(--error);
+      padding: 0.6rem 1.2rem;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.2s;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-1px);
+      background: #c0392b;
+    }
+
+    .logout-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: white;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+
+    h2 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .section {
+      margin-bottom: 2rem;
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .dish-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+    }
+
+    button:not(.logout-btn) {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:not(.logout-btn):hover {
+      background: #2980b9;
+    }
+
+    .meal-card {
+      background: white;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .kbju-badge {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      border-radius: 15px;
+      background: #ecf0f1;
+      font-size: 0.85rem;
+      margin: 0.3rem;
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .student-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+      border-left: 4px solid var(--accent);
+    }
+
+    .student-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .bmi-chip {
+      background: #e8f4fc;
+      color: var(--accent);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .meal-period {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: #f8fafb;
+      border-radius: 8px;
+    }
+
+    .period-title {
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .dish-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.8rem;
+    }
+
+    .dish-item {
+      background: white;
+      padding: 0.8rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border: 1px solid #eee;
+    }
+
+    .no-dishes {
+      color: #95a5a6;
+      font-style: italic;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .dish-form {
+        grid-template-columns: 1fr;
+      }
+
+      button:not(.logout-btn) {
+        width: 100%;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .dish-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Панель управления питанием</h1>
+      <button class="logout-btn" id="logoutBtn">
+        <svg viewBox="0 0 24 24">
+          <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 0 1 2 2v2h-2V4H5v16h9v-2h2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9z"/>
+        </svg>
+        Выход
+      </button>
+    </div>
+
+    <div class="section">
+      <h2>Добавить новое блюдо</h2>
+      <div class="dish-form">
+        <div>
+          <input type="text" id="dishName" placeholder="Название блюда">
+          <div class="error-message" id="nameError"></div>
+        </div>
+        <select id="dishPeriod">
+          <option value="breakfast">Завтрак</option>
+          <option value="lunch">Обед</option>
+          <option value="dinner">Ужин</option>
+        </select>
+        <input type="number" id="kcal" placeholder="Калории (ккал)">
+        <input type="number" step="0.1" id="proteins" placeholder="Белки (г)">
+        <input type="number" step="0.1" id="fats" placeholder="Жиры (г)">
+        <input type="number" step="0.1" id="carbs" placeholder="Углеводы (г)">
+        <button id="addDishBtn">Добавить</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+        <button id="showDishesBtn">Все блюда</button>
+        <button id="showStudentsBtn">План питания</button>
+      </div>
+      <div id="dishesOutput" style="margin-top: 1.5rem;"></div>
+      <div id="studentsOutput" style="margin-top: 1.5rem;"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://127.0.0.1:8000';
+
+    // Проверка авторизации
+    const user_id = localStorage.getItem("user_id");
+    const role = localStorage.getItem("role");
+    if (role !== "staff") {
+      alert("Нет доступа (не персонал).");
+      window.location.href = "index.html";
+    }
+
+    // Обработчик выхода
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    // Обработчики событий
+    document.getElementById("addDishBtn").addEventListener("click", async () => {
+      const dish = {
+        name: document.getElementById("dishName").value.trim(),
+        period: document.getElementById("dishPeriod").value,
+        kcal: parseFloat(document.getElementById("kcal").value),
+        proteins: parseFloat(document.getElementById("proteins").value),
+        fats: parseFloat(document.getElementById("fats").value),
+        carbs: parseFloat(document.getElementById("carbs").value)
+      };
+
+      if (!validateDish(dish)) return;
+
+      try {
+        const resp = await fetch(`${API_URL}/staff/dishes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dish)
+        });
+
+        if (!resp.ok) {
+          const errorData = await resp.json();
+          showError(errorData.detail || "Ошибка при добавлении");
+          return;
+        }
+
+        clearForm();
+        alert("Блюдо успешно добавлено!");
+      } catch (err) {
+        console.error(err);
+        alert("Ошибка соединения с сервером");
+      }
+    });
+
+    document.getElementById("showDishesBtn").addEventListener("click", async () => {
+      try {
+        const resp = await fetch(`${API_URL}/staff/dishes`);
+        if (!resp.ok) throw new Error(resp.statusText);
+        const dishes = await resp.json();
+        renderDishes(dishes);
+      } catch (err) {
+        console.error(err);
+        alert("Ошибка загрузки данных");
+      }
+    });
+
+    document.getElementById("showStudentsBtn").addEventListener("click", async () => {
+      try {
+        const resp = await fetch(`${API_URL}/staff/students`);
+        if (!resp.ok) throw new Error(resp.statusText);
+        const students = await resp.json();
+        renderStudents(students);
+      } catch (err) {
+        console.error(err);
+        alert("Ошибка загрузки данных");
+      }
+    });
+
+    // Валидация данных
+    function validateDish(dish) {
+      let isValid = true;
+      const errors = {
+        name: document.getElementById("nameError"),
+      };
+
+      Object.values(errors).forEach(e => {
+        e.textContent = '';
+        e.style.display = 'none';
+      });
+
+      if (!dish.name) {
+        errors.name.textContent = "Введите название блюда";
+        errors.name.style.display = 'block';
+        isValid = false;
+      }
+
+      if (isNaN(dish.kcal) || dish.kcal <= 0) {
+        alert("Введите корректные калории");
+        isValid = false;
+      }
+
+      if (isNaN(dish.proteins) || dish.proteins < 0) {
+        alert("Введите корректное количество белков");
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    // Очистка формы
+    function clearForm() {
+      document.getElementById("dishName").value = '';
+      document.getElementById("kcal").value = '';
+      document.getElementById("proteins").value = '';
+      document.getElementById("fats").value = '';
+      document.getElementById("carbs").value = '';
+    }
+
+    // Отображение блюд
+    function renderDishes(dishes) {
+      const grouped = groupBy(dishes, 'period');
+      let html = '';
+
+      for (const [period, items] of Object.entries(grouped)) {
+        html += `<h3>${periodToRu(period)}</h3>`;
+        items.forEach(d => {
+          html += `
+            <div class="meal-card">
+              <h4>${d.name}</h4>
+              <div>
+                <span class="kbju-badge">${d.kcal} ккал</span>
+                <span class="kbju-badge">Б: ${d.proteins}г</span>
+                <span class="kbju-badge">Ж: ${d.fats}г</span>
+                <span class="kbju-badge">У: ${d.carbs}г</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+      document.getElementById("dishesOutput").innerHTML = html;
+      document.getElementById("studentsOutput").innerHTML = '';
+    }
+
+    // Отображение учеников
+    function renderStudents(students) {
+      let html = '';
+      students.forEach(s => {
+        html += `
+          <div class="student-card">
+            <div class="student-header">
+              <h3>${s.student_username}</h3>
+              ${s.bmi ? `<span class="bmi-chip">ИМТ: ${s.bmi}</span>` : ''}
+            </div>
+            ${s.meal_plan ? renderStudentMeals(s.meal_plan) : '<p class="no-dishes">Данные о питании отсутствуют</p>'}
+          </div>
+        `;
+      });
+      document.getElementById("studentsOutput").innerHTML = html;
+      document.getElementById("dishesOutput").innerHTML = '';
+    }
+
+    function renderStudentMeals(mealPlan) {
+      if (!mealPlan) return '';
+      return Object.entries(mealPlan).map(([period, dishes]) => `
+        <div class="meal-period">
+          <div class="period-title">
+            <span>${periodToRu(period)}</span>
+          </div>
+          <div class="dish-grid">
+            ${dishes.length > 0 ?
+              dishes.map(d => `
+                <div class="dish-item">
+                  <div style="font-weight: 500; margin-bottom: 0.3rem;">${d.name}</div>
+                  <div class="kbju-badge">${d.kcal} ккал</div>
+                  <div style="display: flex; gap: 0.3rem; margin-top: 0.5rem;">
+                    <span class="kbju-badge" style="background: #e8f6f3; color: #16a085;">Б: ${d.proteins}</span>
+                    <span class="kbju-badge" style="background: #fdedec; color: #c0392b;">Ж: ${d.fats}</span>
+                    <span class="kbju-badge" style="background: #f4ecf7; color: #8e44ad;">У: ${d.carbs}</span>
+                  </div>
+                </div>
+              `).join('') :
+              '<div class="no-dishes">Нет подходящих блюд</div>'
+            }
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Вспомогательные функции
+    function periodToRu(period) {
+      const map = { breakfast: 'Завтрак', lunch: 'Обед', dinner: 'Ужин', snack: 'Перекус' };
+      return map[period] || period;
+    }
+
+    function groupBy(array, key) {
+      return array.reduce((acc, item) => ({
+        ...acc,
+        [item[key]]: [...(acc[item[key]] || []), item]
+      }), {});
+    }
+
+    function showError(message) {
+      alert(`Ошибка: ${message}`);
+    }
+  </script>
+</body>
+</html>
