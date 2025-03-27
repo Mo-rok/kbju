@@ -2,7 +2,6 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.backend.db import init_db, SessionLocal, User, UserRole
-
 from app.backend.routers import admin, staff, student
 
 app = FastAPI()
@@ -26,19 +25,13 @@ def on_startup():
         db.close()
 
 
-origins = [
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-    "http://127.0.0.1:5500",
-    "http://127.0.0.1:63342",
-    "http://localhost:63342",
-]
+# Настройки CORS для разрешения всех источников
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["*"],  # Разрешаем все источники
     allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Разрешаем все методы
+    allow_headers=["*"],  # Разрешаем все заголовки
 )
 
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
