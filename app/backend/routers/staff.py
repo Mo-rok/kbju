@@ -1,4 +1,3 @@
-# routers/staff.py
 from typing import List, Dict
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
